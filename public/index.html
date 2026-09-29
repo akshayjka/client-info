@@ -1,32 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
 
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0"
-  >
+  />
 
-  <title>
-    Client Tracker
-  </title>
+  <title>Client Details Tracker</title>
 
   <link
     rel="stylesheet"
     href="styles.css"
-  >
-
+  />
 </head>
-
 
 <body>
 
-
-  <main class="container">
-
+  <div class="container">
 
     <!-- ==================================================
          HEADER
@@ -35,125 +27,133 @@
     <header class="page-header">
 
       <div>
-
-        <h1>
-          Client Tracker
-        </h1>
+        <h1>Client Details Tracker</h1>
 
         <p>
-          Record client details and track attendance and interest.
+          Manage your hotel and gym clients
         </p>
-
       </div>
 
-
       <div
-        class="db-status"
         id="dbStatus"
+        class="db-status"
       >
-        Connecting...
+        Checking database...
       </div>
 
     </header>
 
 
-
     <!-- ==================================================
-         ADD / EDIT CLIENT
+         CLIENT FORM
     =================================================== -->
 
-    <section class="card form-card">
+    <section class="card">
 
-
-      <div class="section-title">
+      <div class="section-header">
 
         <h2 id="formTitle">
-          Add Client
+          Add New Client
         </h2>
-
-
-        <button
-          type="button"
-          class="secondary hidden"
-          id="cancelEditBtn"
-        >
-          Cancel Edit
-        </button>
 
       </div>
 
-
-
       <form id="clientForm">
-
 
         <input
           type="hidden"
           id="clientId"
-        >
+        />
 
 
         <div class="form-grid">
 
-
           <!-- CLIENT NAME -->
 
-          <label>
+          <div class="form-group">
 
-            Client Name
+            <label for="name">
+              Client Name
+            </label>
 
             <input
-              id="name"
               type="text"
+              id="name"
               placeholder="Enter client name"
-              autocomplete="name"
               required
-            >
+            />
 
-          </label>
-
+          </div>
 
 
           <!-- PHONE -->
 
-          <label>
+          <div class="form-group">
 
-            Phone Number
+            <label for="phone">
+              Phone Number
+            </label>
 
             <input
-              id="phone"
               type="tel"
+              id="phone"
               placeholder="Enter phone number"
-              autocomplete="tel"
+              required
+            />
+
+          </div>
+
+
+          <!-- CLIENT CATEGORY -->
+
+          <div class="form-group">
+
+            <label for="clientCategory">
+              Client Category
+            </label>
+
+            <select
+              id="clientCategory"
               required
             >
 
-          </label>
+              <option value="Gym">
+                Gym
+              </option>
+
+              <option value="Hotel">
+                Hotel
+              </option>
+
+            </select>
+
+          </div>
 
 
+          <!-- GYM NAME -->
 
-          <!-- GYM -->
+          <div class="form-group">
 
-          <label>
-
-            Gym Name
+            <label for="gymName">
+              Gym Name
+            </label>
 
             <input
-              id="gymName"
               type="text"
+              id="gymName"
               placeholder="Enter gym name"
-              autocomplete="organization"
-            >
+            />
 
-          </label>
-
+          </div>
 
 
           <!-- ATTENDANCE -->
 
-          <label>
+          <div class="form-group">
 
-            Attendance
+            <label for="attendance">
+              Attendance
+            </label>
 
             <select id="attendance">
 
@@ -171,15 +171,16 @@
 
             </select>
 
-          </label>
-
+          </div>
 
 
           <!-- INTEREST -->
 
-          <label>
+          <div class="form-group">
 
-            Interest
+            <label for="interest">
+              Interest
+            </label>
 
             <select id="interest">
 
@@ -197,104 +198,131 @@
 
             </select>
 
-          </label>
-
+          </div>
 
 
           <!-- REMARKS -->
 
-          <label class="full-width">
+          <div class="form-group full-width">
 
-            Remarks
+            <label for="remarks">
+              Remarks
+            </label>
 
             <textarea
               id="remarks"
               rows="3"
-              placeholder="Add any additional remarks..."
+              placeholder="Enter remarks"
             ></textarea>
 
-          </label>
-
+          </div>
 
         </div>
 
 
+        <!-- FORM BUTTONS -->
 
-        <button
-          class="primary"
-          type="submit"
-          id="saveBtn"
-        >
-          Add Client
-        </button>
+        <div class="form-actions">
 
+          <button
+            type="submit"
+            class="btn btn-primary"
+            id="saveButton"
+          >
+            Add Client
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-secondary hidden"
+            id="cancelButton"
+          >
+            Cancel
+          </button>
+
+        </div>
 
       </form>
 
     </section>
 
 
-
     <!-- ==================================================
          FILTERS
     =================================================== -->
 
-    <section class="card filter-card">
+    <section class="card">
 
+      <div class="section-header">
 
-      <div class="table-header">
-
-
-        <div>
-
-          <h2>
-            Client Records
-          </h2>
-
-          <span id="recordCount">
-            0 records
-          </span>
-
-        </div>
-
+        <h2>
+          Search & Filter
+        </h2>
 
         <button
           type="button"
-          class="secondary"
-          id="clearFiltersBtn"
+          class="btn btn-secondary"
+          id="clearFiltersButton"
         >
           Clear Filters
         </button>
 
-
       </div>
-
 
 
       <div class="filter-grid">
 
-
         <!-- SEARCH -->
 
-        <label>
+        <div class="form-group">
 
-          Search
+          <label for="searchInput">
+            Search
+          </label>
 
           <input
+            type="text"
             id="searchInput"
-            type="search"
-            placeholder="Name, phone, gym or remarks..."
-          >
+            placeholder="Search name, phone, gym, remarks..."
+          />
 
-        </label>
+        </div>
 
+
+        <!-- CLIENT CATEGORY FILTER -->
+
+        <div class="form-group">
+
+          <label for="categoryFilter">
+            Client Category
+          </label>
+
+          <select id="categoryFilter">
+
+            <option value="">
+              All Categories
+            </option>
+
+            <option value="Gym">
+              Gym
+            </option>
+
+            <option value="Hotel">
+              Hotel
+            </option>
+
+          </select>
+
+        </div>
 
 
         <!-- GYM FILTER -->
 
-        <label>
+        <div class="form-group">
 
-          Gym Name
+          <label for="gymFilter">
+            Gym Name
+          </label>
 
           <select id="gymFilter">
 
@@ -304,15 +332,16 @@
 
           </select>
 
-        </label>
-
+        </div>
 
 
         <!-- ATTENDANCE FILTER -->
 
-        <label>
+        <div class="form-group">
 
-          Attendance
+          <label for="attendanceFilter">
+            Attendance
+          </label>
 
           <select id="attendanceFilter">
 
@@ -334,15 +363,16 @@
 
           </select>
 
-        </label>
-
+        </div>
 
 
         <!-- INTEREST FILTER -->
 
-        <label>
+        <div class="form-group">
 
-          Interest
+          <label for="interestFilter">
+            Interest
+          </label>
 
           <select id="interestFilter">
 
@@ -364,13 +394,11 @@
 
           </select>
 
-        </label>
-
+        </div>
 
       </div>
 
     </section>
-
 
 
     <!-- ==================================================
@@ -379,85 +407,81 @@
 
     <section class="card">
 
+      <div class="section-header">
 
-      <div class="table-wrapper">
+        <div>
 
+          <h2>
+            Clients
+          </h2>
+
+          <span
+            id="clientCount"
+            class="client-count"
+          >
+            0 clients
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <div class="table-container">
 
         <table>
-
 
           <thead>
 
             <tr>
 
-              <th>
-                #
-              </th>
+              <th>#</th>
 
-              <th>
-                Client
-              </th>
+              <th>Client</th>
 
-              <th>
-                Phone
-              </th>
+              <th>Phone</th>
 
-              <th>
-                Gym
-              </th>
+              <th>Category</th>
 
-              <th>
-                Attendance
-              </th>
+              <th>Gym</th>
 
-              <th>
-                Interest
-              </th>
+              <th>Attendance</th>
 
-              <th>
-                Remarks
-              </th>
+              <th>Interest</th>
 
-              <th>
-                Added
-              </th>
+              <th>Remarks</th>
 
-              <th>
-                Actions
-              </th>
+              <th>Added</th>
+
+              <th>Actions</th>
 
             </tr>
 
           </thead>
 
 
+          <tbody id="clientTableBody">
 
-          <tbody
-            id="clientTableBody"
-          >
+            <tr>
+
+              <td
+                colspan="10"
+                class="loading"
+              >
+                Loading clients...
+              </td>
+
+            </tr>
+
           </tbody>
-
 
         </table>
 
-
-
-        <div
-          class="empty"
-          id="emptyState"
-        >
-          No client records found.
-        </div>
-
-
       </div>
-
 
     </section>
 
-
-  </main>
-
+  </div>
 
 
   <!-- ==================================================
@@ -465,16 +489,12 @@
   =================================================== -->
 
   <div
-    class="toast"
     id="toast"
-  >
-  </div>
-
+    class="toast"
+  ></div>
 
 
   <script src="app.js"></script>
 
-
 </body>
-
 </html>

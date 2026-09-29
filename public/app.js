@@ -1,131 +1,72 @@
 // ======================================================
-// ELEMENTS
+// DOM ELEMENTS
 // ======================================================
 
-const form =
-  document.getElementById(
-    "clientForm"
-  );
-
+const clientForm =
+  document.getElementById("clientForm");
 
 const clientId =
-  document.getElementById(
-    "clientId"
-  );
-
+  document.getElementById("clientId");
 
 const nameInput =
-  document.getElementById(
-    "name"
-  );
-
+  document.getElementById("name");
 
 const phoneInput =
-  document.getElementById(
-    "phone"
-  );
+  document.getElementById("phone");
 
+const clientCategoryInput =
+  document.getElementById("clientCategory");
 
 const gymNameInput =
-  document.getElementById(
-    "gymName"
-  );
-
+  document.getElementById("gymName");
 
 const attendanceInput =
-  document.getElementById(
-    "attendance"
-  );
-
+  document.getElementById("attendance");
 
 const interestInput =
-  document.getElementById(
-    "interest"
-  );
-
+  document.getElementById("interest");
 
 const remarksInput =
-  document.getElementById(
-    "remarks"
-  );
+  document.getElementById("remarks");
 
+const saveButton =
+  document.getElementById("saveButton");
 
-const tableBody =
-  document.getElementById(
-    "clientTableBody"
-  );
-
-
-const emptyState =
-  document.getElementById(
-    "emptyState"
-  );
-
-
-const recordCount =
-  document.getElementById(
-    "recordCount"
-  );
-
-
-const searchInput =
-  document.getElementById(
-    "searchInput"
-  );
-
-
-const gymFilter =
-  document.getElementById(
-    "gymFilter"
-  );
-
-
-const attendanceFilter =
-  document.getElementById(
-    "attendanceFilter"
-  );
-
-
-const interestFilter =
-  document.getElementById(
-    "interestFilter"
-  );
-
-
-const clearFiltersBtn =
-  document.getElementById(
-    "clearFiltersBtn"
-  );
-
-
-const saveBtn =
-  document.getElementById(
-    "saveBtn"
-  );
-
-
-const cancelEditBtn =
-  document.getElementById(
-    "cancelEditBtn"
-  );
-
+const cancelButton =
+  document.getElementById("cancelButton");
 
 const formTitle =
-  document.getElementById(
-    "formTitle"
-  );
+  document.getElementById("formTitle");
 
+const searchInput =
+  document.getElementById("searchInput");
 
-const toast =
-  document.getElementById(
-    "toast"
-  );
+const categoryFilter =
+  document.getElementById("categoryFilter");
 
+const gymFilter =
+  document.getElementById("gymFilter");
+
+const attendanceFilter =
+  document.getElementById("attendanceFilter");
+
+const interestFilter =
+  document.getElementById("interestFilter");
+
+const clearFiltersButton =
+  document.getElementById("clearFiltersButton");
+
+const clientTableBody =
+  document.getElementById("clientTableBody");
+
+const clientCount =
+  document.getElementById("clientCount");
 
 const dbStatus =
-  document.getElementById(
-    "dbStatus"
-  );
+  document.getElementById("dbStatus");
+
+const toast =
+  document.getElementById("toast");
 
 
 // ======================================================
@@ -134,20 +75,20 @@ const dbStatus =
 
 let clients = [];
 
-let toastTimer;
-
 
 // ======================================================
-// INITIAL LOAD
+// INITIALIZE
 // ======================================================
 
 document.addEventListener(
   "DOMContentLoaded",
-  async () => {
+  () => {
 
-    await checkDatabase();
+    loadDatabaseStatus();
 
-    await loadClients();
+    loadClients();
+
+    setupEvents();
 
   }
 );
@@ -157,113 +98,109 @@ document.addEventListener(
 // EVENTS
 // ======================================================
 
-form.addEventListener(
-  "submit",
-  saveClient
-);
+function setupEvents() {
+
+  clientForm.addEventListener(
+    "submit",
+    handleFormSubmit
+  );
 
 
-cancelEditBtn.addEventListener(
-  "click",
-  resetForm
-);
+  cancelButton.addEventListener(
+    "click",
+    resetForm
+  );
 
 
-searchInput.addEventListener(
-  "input",
-  renderTable
-);
+  searchInput.addEventListener(
+    "input",
+    renderClients
+  );
 
 
-gymFilter.addEventListener(
-  "change",
-  renderTable
-);
+  categoryFilter.addEventListener(
+    "change",
+    renderClients
+  );
 
 
-attendanceFilter.addEventListener(
-  "change",
-  renderTable
-);
+  gymFilter.addEventListener(
+    "change",
+    renderClients
+  );
 
 
-interestFilter.addEventListener(
-  "change",
-  renderTable
-);
+  attendanceFilter.addEventListener(
+    "change",
+    renderClients
+  );
 
 
-clearFiltersBtn.addEventListener(
-  "click",
-  clearFilters
-);
+  interestFilter.addEventListener(
+    "change",
+    renderClients
+  );
+
+
+  clearFiltersButton.addEventListener(
+    "click",
+    clearFilters
+  );
+
+
+  clientTableBody.addEventListener(
+    "click",
+    handleTableAction
+  );
+
+}
 
 
 // ======================================================
 // DATABASE STATUS
 // ======================================================
 
-async function checkDatabase() {
+async function loadDatabaseStatus() {
 
   try {
 
     const response =
-      await fetch(
-        "/api/health"
-      );
+      await fetch("/api/health");
 
-
-    if (!response.ok) {
-
-      throw new Error(
-        "Database unavailable"
-      );
-
-    }
-
-
-    const result =
+    const data =
       await response.json();
 
 
     if (
-      result.database ===
-      "MongoDB connected"
+      response.ok &&
+      data.database === "connected"
     ) {
 
       dbStatus.textContent =
-        "MongoDB connected";
+        "MongoDB Connected";
 
+      dbStatus.className =
+        "db-status connected";
 
-      dbStatus.classList.add(
-        "connected"
-      );
-
-    }
-
-    else {
+    } else {
 
       dbStatus.textContent =
-        "MongoDB disconnected";
+        "Database Disconnected";
 
-
-      dbStatus.classList.remove(
-        "connected"
-      );
+      dbStatus.className =
+        "db-status disconnected";
 
     }
 
-  }
+  } catch (error) {
 
-  catch (error) {
+    console.error(error);
 
     dbStatus.textContent =
-      "Database error";
+      "Database Error";
 
-
-    dbStatus.classList.remove(
-      "connected"
-    );
+    dbStatus.className =
+      "db-status disconnected";
 
   }
 
@@ -279,48 +216,41 @@ async function loadClients() {
   try {
 
     const response =
-      await fetch(
-        "/api/clients"
-      );
-
-
-    const result =
-      await response.json();
+      await fetch("/api/clients");
 
 
     if (!response.ok) {
 
       throw new Error(
-        result.error ||
-        "Failed to load clients."
+        "Failed to load clients"
       );
 
     }
 
 
     clients =
-      Array.isArray(result)
-        ? result
-        : [];
+      await response.json();
 
 
     updateGymFilter();
 
-    renderTable();
+    renderClients();
 
-  }
-
-  catch (error) {
+  } catch (error) {
 
     console.error(
+      "Load clients error:",
       error
     );
 
 
-    showToast(
-      error.message ||
-      "Unable to load client records."
-    );
+    clientTableBody.innerHTML = `
+      <tr>
+        <td colspan="10" class="empty-state">
+          Failed to load clients.
+        </td>
+      </tr>
+    `;
 
   }
 
@@ -331,20 +261,25 @@ async function loadClients() {
 // SAVE CLIENT
 // ======================================================
 
-async function saveClient(
-  event
-) {
+async function handleFormSubmit(event) {
 
   event.preventDefault();
 
 
-  const payload = {
+  const id =
+    clientId.value.trim();
+
+
+  const clientData = {
 
     name:
       nameInput.value.trim(),
 
     phone:
       phoneInput.value.trim(),
+
+    clientCategory:
+      clientCategoryInput.value,
 
     gymName:
       gymNameInput.value.trim(),
@@ -361,16 +296,12 @@ async function saveClient(
   };
 
 
-  // -----------------------------
-  // VALIDATION
-  // -----------------------------
-
-  if (!payload.name) {
+  if (!clientData.name) {
 
     showToast(
-      "Please enter client name."
+      "Please enter client name.",
+      "error"
     );
-
 
     nameInput.focus();
 
@@ -379,12 +310,12 @@ async function saveClient(
   }
 
 
-  if (!payload.phone) {
+  if (!clientData.phone) {
 
     showToast(
-      "Please enter phone number."
+      "Please enter phone number.",
+      "error"
     );
-
 
     phoneInput.focus();
 
@@ -393,47 +324,46 @@ async function saveClient(
   }
 
 
-  // -----------------------------
-  // ADD / UPDATE
-  // -----------------------------
+  if (!clientData.clientCategory) {
 
-  const editingId =
-    clientId.value.trim();
+    showToast(
+      "Please select client category.",
+      "error"
+    );
 
+    clientCategoryInput.focus();
 
-  const url =
-    editingId
+    return;
 
-      ? `/api/clients/${encodeURIComponent(
-          editingId
-        )}`
-
-      : "/api/clients";
-
-
-  const method =
-    editingId
-      ? "PUT"
-      : "POST";
-
-
-  saveBtn.disabled =
-    true;
-
-
-  saveBtn.textContent =
-    editingId
-      ? "Updating..."
-      : "Saving...";
+  }
 
 
   try {
+
+    saveButton.disabled = true;
+
+    saveButton.textContent =
+      id
+        ? "Updating..."
+        : "Adding...";
+
+
+    const url =
+      id
+        ? `/api/clients/${id}`
+        : "/api/clients";
+
+
+    const method =
+      id
+        ? "PUT"
+        : "POST";
+
 
     const response =
       await fetch(
         url,
         {
-
           method,
 
           headers: {
@@ -442,69 +372,360 @@ async function saveClient(
           },
 
           body:
-            JSON.stringify(
-              payload
-            )
-
+            JSON.stringify(clientData)
         }
       );
 
 
-    const result =
+    const data =
       await response.json();
 
 
     if (!response.ok) {
 
       throw new Error(
-        result.error ||
-        "Unable to save client."
+        data.message ||
+        "Something went wrong"
       );
 
     }
 
 
-    showToast(
-      editingId
-        ? "Client updated successfully."
-        : "Client added successfully."
-    );
+    if (id) {
+
+      showToast(
+        "Client updated successfully.",
+        "success"
+      );
+
+    } else {
+
+      showToast(
+        "Client added successfully.",
+        "success"
+      );
+
+    }
 
 
     resetForm();
 
-
     await loadClients();
 
-
-    await checkDatabase();
-
-  }
-
-  catch (error) {
+  } catch (error) {
 
     console.error(
+      "Save client error:",
       error
     );
 
 
     showToast(
       error.message ||
-      "Unable to save client."
+      "Failed to save client.",
+      "error"
     );
 
-  }
+  } finally {
 
-  finally {
+    saveButton.disabled = false;
 
-    saveBtn.disabled =
-      false;
-
-
-    saveBtn.textContent =
-      "Add Client";
+    saveButton.textContent =
+      clientId.value
+        ? "Update Client"
+        : "Add Client";
 
   }
+
+}
+
+
+// ======================================================
+// RENDER CLIENTS
+// ======================================================
+
+function renderClients() {
+
+  const searchTerm =
+    searchInput.value
+      .trim()
+      .toLowerCase();
+
+
+  const selectedCategory =
+    categoryFilter.value;
+
+
+  const selectedGym =
+    gymFilter.value;
+
+
+  const selectedAttendance =
+    attendanceFilter.value;
+
+
+  const selectedInterest =
+    interestFilter.value;
+
+
+  const filteredClients =
+    clients.filter(
+      (client) => {
+
+        // ----------------------------------------------
+        // SEARCH
+        // ----------------------------------------------
+
+        const searchableText = [
+
+          client.name,
+
+          client.phone,
+
+          client.clientCategory,
+
+          client.gymName,
+
+          client.attendance,
+
+          client.interest,
+
+          client.remarks
+
+        ]
+          .join(" ")
+          .toLowerCase();
+
+
+        const matchesSearch =
+          !searchTerm ||
+          searchableText.includes(
+            searchTerm
+          );
+
+
+        // ----------------------------------------------
+        // CATEGORY
+        // ----------------------------------------------
+
+        const matchesCategory =
+          !selectedCategory ||
+          client.clientCategory ===
+            selectedCategory;
+
+
+        // ----------------------------------------------
+        // GYM
+        // ----------------------------------------------
+
+        const matchesGym =
+          !selectedGym ||
+          client.gymName ===
+            selectedGym;
+
+
+        // ----------------------------------------------
+        // ATTENDANCE
+        // ----------------------------------------------
+
+        const matchesAttendance =
+          !selectedAttendance ||
+          client.attendance ===
+            selectedAttendance;
+
+
+        // ----------------------------------------------
+        // INTEREST
+        // ----------------------------------------------
+
+        const matchesInterest =
+          !selectedInterest ||
+          client.interest ===
+            selectedInterest;
+
+
+        return (
+
+          matchesSearch &&
+
+          matchesCategory &&
+
+          matchesGym &&
+
+          matchesAttendance &&
+
+          matchesInterest
+
+        );
+
+      }
+    );
+
+
+  // ====================================================
+  // CLIENT COUNT
+  // ====================================================
+
+  clientCount.textContent =
+    `${filteredClients.length} ${
+      filteredClients.length === 1
+        ? "client"
+        : "clients"
+    }`;
+
+
+  // ====================================================
+  // EMPTY STATE
+  // ====================================================
+
+  if (!filteredClients.length) {
+
+    clientTableBody.innerHTML = `
+      <tr>
+        <td colspan="10" class="empty-state">
+          No clients found.
+        </td>
+      </tr>
+    `;
+
+    return;
+
+  }
+
+
+  // ====================================================
+  // TABLE
+  // ====================================================
+
+  clientTableBody.innerHTML =
+    filteredClients
+      .map(
+        (client, index) => {
+
+          const category =
+            client.clientCategory ||
+            "Gym";
+
+
+          const categoryClass =
+            category.toLowerCase();
+
+
+          return `
+            <tr>
+
+              <td>
+                ${index + 1}
+              </td>
+
+
+              <td>
+                <strong>
+                  ${escapeHtml(
+                    client.name
+                  )}
+                </strong>
+              </td>
+
+
+              <td>
+                ${escapeHtml(
+                  client.phone
+                )}
+              </td>
+
+
+              <td>
+
+                <span
+                  class="badge category-${categoryClass}"
+                >
+                  ${escapeHtml(
+                    category
+                  )}
+                </span>
+
+              </td>
+
+
+              <td>
+                ${
+                  client.gymName
+                    ? escapeHtml(
+                        client.gymName
+                      )
+                    : "-"
+                }
+              </td>
+
+
+              <td>
+                ${getAttendanceBadge(
+                  client.attendance
+                )}
+              </td>
+
+
+              <td>
+                ${getInterestBadge(
+                  client.interest
+                )}
+              </td>
+
+
+              <td class="remarks-cell">
+
+                ${
+                  client.remarks
+                    ? escapeHtml(
+                        client.remarks
+                      )
+                    : "-"
+                }
+
+              </td>
+
+
+              <td>
+                ${formatDate(
+                  client.createdAt
+                )}
+              </td>
+
+
+              <td>
+
+                <div class="action-buttons">
+
+                  <button
+                    type="button"
+                    class="btn btn-small btn-edit"
+                    data-action="edit"
+                    data-id="${client._id}"
+                  >
+                    Edit
+                  </button>
+
+
+                  <button
+                    type="button"
+                    class="btn btn-small btn-delete"
+                    data-action="delete"
+                    data-id="${client._id}"
+                  >
+                    Delete
+                  </button>
+
+                </div>
+
+              </td>
+
+            </tr>
+          `;
+
+        }
+      )
+      .join("");
 
 }
 
@@ -519,60 +740,45 @@ function updateGymFilter() {
     gymFilter.value;
 
 
-  const gyms =
-    [
-      ...new Set(
-
-        clients
-
-          .map(
-            client =>
-              String(
-                client.gymName ||
-                ""
-              ).trim()
-          )
-
-          .filter(
-            gym =>
-              gym.length > 0
-          )
-
-      )
-    ];
-
-
-  gyms.sort(
+  const gyms = [
+    ...new Set(
+      clients
+        .map(
+          (client) =>
+            client.gymName
+        )
+        .filter(
+          (gym) =>
+            gym &&
+            gym.trim()
+        )
+    )
+  ].sort(
     (a, b) =>
       a.localeCompare(b)
   );
 
 
   gymFilter.innerHTML = `
-
     <option value="">
       All Gyms
     </option>
-
   `;
 
 
   gyms.forEach(
-    gym => {
+    (gym) => {
 
       const option =
         document.createElement(
           "option"
         );
 
-
       option.value =
         gym;
 
-
       option.textContent =
         gym;
-
 
       gymFilter.appendChild(
         option
@@ -597,479 +803,64 @@ function updateGymFilter() {
 
 
 // ======================================================
-// RENDER + FILTER TABLE
-// ======================================================
-
-function renderTable() {
-
-  const search =
-    searchInput.value
-      .trim()
-      .toLowerCase();
-
-
-  const selectedGym =
-    gymFilter.value;
-
-
-  const selectedAttendance =
-    attendanceFilter.value;
-
-
-  const selectedInterest =
-    interestFilter.value;
-
-
-  const filtered =
-    clients.filter(
-      client => {
-
-
-        // -----------------------------
-        // SEARCH
-        // -----------------------------
-
-        const name =
-          String(
-            client.name ||
-            ""
-          ).toLowerCase();
-
-
-        const phone =
-          String(
-            client.phone ||
-            ""
-          ).toLowerCase();
-
-
-        const gymName =
-          String(
-            client.gymName ||
-            ""
-          ).toLowerCase();
-
-
-        const remarks =
-          String(
-            client.remarks ||
-            ""
-          ).toLowerCase();
-
-
-        const matchesSearch =
-          !search ||
-
-          name.includes(
-            search
-          ) ||
-
-          phone.includes(
-            search
-          ) ||
-
-          gymName.includes(
-            search
-          ) ||
-
-          remarks.includes(
-            search
-          );
-
-
-        // -----------------------------
-        // GYM
-        // -----------------------------
-
-        const matchesGym =
-          !selectedGym ||
-
-          String(
-            client.gymName ||
-            ""
-          ) ===
-            selectedGym;
-
-
-        // -----------------------------
-        // ATTENDANCE
-        // -----------------------------
-
-        const matchesAttendance =
-          !selectedAttendance ||
-
-          String(
-            client.attendance ||
-            "None"
-          ) ===
-            selectedAttendance;
-
-
-        // -----------------------------
-        // INTEREST
-        // -----------------------------
-
-        const matchesInterest =
-          !selectedInterest ||
-
-          String(
-            client.interest ||
-            "None"
-          ) ===
-            selectedInterest;
-
-
-        // -----------------------------
-        // ALL FILTERS MUST MATCH
-        // -----------------------------
-
-        return (
-
-          matchesSearch &&
-
-          matchesGym &&
-
-          matchesAttendance &&
-
-          matchesInterest
-
-        );
-
-      }
-    );
-
-
-  // ====================================================
-  // BUILD TABLE
-  // ====================================================
-
-  tableBody.innerHTML =
-    "";
-
-
-  filtered.forEach(
-    (client, index) => {
-
-
-      const row =
-        document.createElement(
-          "tr"
-        );
-
-
-      const attendance =
-        client.attendance ||
-        "None";
-
-
-      const interest =
-        client.interest ||
-        "None";
-
-
-      const attendanceClass =
-        getStatusClass(
-          attendance
-        );
-
-
-      const interestClass =
-        getStatusClass(
-          interest
-        );
-
-
-      row.innerHTML = `
-
-        <td>
-          ${index + 1}
-        </td>
-
-
-        <td>
-          <strong>
-            ${escapeHtml(
-              client.name
-            )}
-          </strong>
-        </td>
-
-
-        <td>
-          ${escapeHtml(
-            client.phone
-          )}
-        </td>
-
-
-        <td>
-          ${escapeHtml(
-            client.gymName ||
-            "-"
-          )}
-        </td>
-
-
-        <td>
-
-          <span
-            class="badge ${attendanceClass}"
-          >
-
-            ${escapeHtml(
-              attendance
-            )}
-
-          </span>
-
-        </td>
-
-
-        <td>
-
-          <span
-            class="badge ${interestClass}"
-          >
-
-            ${escapeHtml(
-              interest
-            )}
-
-          </span>
-
-        </td>
-
-
-        <td>
-
-          ${escapeHtml(
-            client.remarks ||
-            "-"
-          )}
-
-        </td>
-
-
-        <td>
-
-          ${formatDate(
-            client.createdAt
-          )}
-
-        </td>
-
-
-        <td>
-
-          <div
-            class="action-group"
-          >
-
-
-            <button
-
-              class="action edit"
-
-              type="button"
-
-              data-action="edit"
-
-              data-id="${client._id}"
-
-            >
-
-              Edit
-
-            </button>
-
-
-
-            <button
-
-              class="action delete"
-
-              type="button"
-
-              data-action="delete"
-
-              data-id="${client._id}"
-
-            >
-
-              Delete
-
-            </button>
-
-
-          </div>
-
-        </td>
-
-      `;
-
-
-      tableBody.appendChild(
-        row
-      );
-
-    }
-  );
-
-
-  // ====================================================
-  // RECORD COUNT
-  // ====================================================
-
-  recordCount.textContent =
-
-    `${filtered.length} ${
-      filtered.length === 1
-        ? "record"
-        : "records"
-    }`;
-
-
-  // ====================================================
-  // EMPTY STATE
-  // ====================================================
-
-  emptyState.style.display =
-
-    filtered.length
-      ? "none"
-      : "block";
-
-}
-
-
-// ======================================================
-// STATUS CLASS
-// ======================================================
-
-function getStatusClass(
-  value
-) {
-
-  if (
-    value ===
-    "Attended"
-  ) {
-
-    return "attended";
-
-  }
-
-
-  if (
-    value ===
-    "Not Attended"
-  ) {
-
-    return "not-attended";
-
-  }
-
-
-  if (
-    value ===
-    "Interested"
-  ) {
-
-    return "interested";
-
-  }
-
-
-  if (
-    value ===
-    "Not Interested"
-  ) {
-
-    return "not-interested";
-
-  }
-
-
-  return "none-status";
-
-}
-
-
-// ======================================================
 // TABLE ACTIONS
 // ======================================================
 
-tableBody.addEventListener(
-  "click",
-  event => {
+function handleTableAction(event) {
+
+  const button =
+    event.target.closest(
+      "button[data-action]"
+    );
 
 
-    const button =
-      event.target.closest(
-        "button[data-action]"
-      );
+  if (!button) {
+    return;
+  }
 
 
-    if (!button) {
-
-      return;
-
-    }
+  const action =
+    button.dataset.action;
 
 
-    const id =
-      button.dataset.id;
+  const id =
+    button.dataset.id;
 
 
-    const action =
-      button.dataset.action;
+  if (action === "edit") {
 
-
-    if (
-      action ===
-      "edit"
-    ) {
-
-      editClient(id);
-
-    }
-
-
-    if (
-      action ===
-      "delete"
-    ) {
-
-      deleteClient(id);
-
-    }
+    editClient(id);
 
   }
-);
+
+
+  if (action === "delete") {
+
+    deleteClient(id);
+
+  }
+
+}
 
 
 // ======================================================
 // EDIT CLIENT
 // ======================================================
 
-function editClient(
-  id
-) {
+function editClient(id) {
 
   const client =
     clients.find(
-      item =>
-        String(
-          item._id
-        ) ===
-        String(id)
+      (item) =>
+        item._id === id
     );
 
 
   if (!client) {
 
     showToast(
-      "Client record not found."
+      "Client not found.",
+      "error"
     );
 
     return;
@@ -1082,18 +873,20 @@ function editClient(
 
 
   nameInput.value =
-    client.name ||
-    "";
+    client.name || "";
 
 
   phoneInput.value =
-    client.phone ||
-    "";
+    client.phone || "";
+
+
+  clientCategoryInput.value =
+    client.clientCategory ||
+    "Gym";
 
 
   gymNameInput.value =
-    client.gymName ||
-    "";
+    client.gymName || "";
 
 
   attendanceInput.value =
@@ -1107,30 +900,25 @@ function editClient(
 
 
   remarksInput.value =
-    client.remarks ||
-    "";
+    client.remarks || "";
 
 
   formTitle.textContent =
     "Edit Client";
 
 
-  saveBtn.textContent =
+  saveButton.textContent =
     "Update Client";
 
 
-  cancelEditBtn.classList.remove(
+  cancelButton.classList.remove(
     "hidden"
   );
 
 
   window.scrollTo({
-
     top: 0,
-
-    behavior:
-      "smooth"
-
+    behavior: "smooth"
   });
 
 }
@@ -1140,41 +928,28 @@ function editClient(
 // DELETE CLIENT
 // ======================================================
 
-async function deleteClient(
-  id
-) {
+async function deleteClient(id) {
 
   const client =
     clients.find(
-      item =>
-        String(
-          item._id
-        ) ===
-        String(id)
+      (item) =>
+        item._id === id
     );
 
 
   if (!client) {
-
-    showToast(
-      "Client record not found."
-    );
-
     return;
-
   }
 
 
   const confirmed =
-    window.confirm(
-      `Delete ${client.name}?`
+    confirm(
+      `Are you sure you want to delete "${client.name}"?`
     );
 
 
   if (!confirmed) {
-
     return;
-
   }
 
 
@@ -1182,58 +957,88 @@ async function deleteClient(
 
     const response =
       await fetch(
-
-        `/api/clients/${encodeURIComponent(
-          id
-        )}`,
-
+        `/api/clients/${id}`,
         {
-          method:
-            "DELETE"
+          method: "DELETE"
         }
-
       );
 
 
-    const result =
+    const data =
       await response.json();
 
 
     if (!response.ok) {
 
       throw new Error(
-        result.error ||
-        "Unable to delete client."
+        data.message ||
+        "Failed to delete client"
       );
 
     }
 
 
     showToast(
-      "Client deleted successfully."
+      "Client deleted successfully.",
+      "success"
     );
 
 
     await loadClients();
 
-
-    await checkDatabase();
-
-  }
-
-  catch (error) {
+  } catch (error) {
 
     console.error(
+      "Delete client error:",
       error
     );
 
 
     showToast(
       error.message ||
-      "Unable to delete client."
+      "Failed to delete client.",
+      "error"
     );
 
   }
+
+}
+
+
+// ======================================================
+// RESET FORM
+// ======================================================
+
+function resetForm() {
+
+  clientId.value = "";
+
+  clientForm.reset();
+
+
+  // Set defaults after reset
+
+  clientCategoryInput.value =
+    "Gym";
+
+  attendanceInput.value =
+    "None";
+
+  interestInput.value =
+    "None";
+
+
+  formTitle.textContent =
+    "Add New Client";
+
+
+  saveButton.textContent =
+    "Add Client";
+
+
+  cancelButton.classList.add(
+    "hidden"
+  );
 
 }
 
@@ -1247,6 +1052,9 @@ function clearFilters() {
   searchInput.value =
     "";
 
+  categoryFilter.value =
+    "";
+
   gymFilter.value =
     "";
 
@@ -1257,43 +1065,101 @@ function clearFilters() {
     "";
 
 
-  renderTable();
+  renderClients();
 
 }
 
 
 // ======================================================
-// RESET FORM
+// ATTENDANCE BADGE
 // ======================================================
 
-function resetForm() {
+function getAttendanceBadge(
+  attendance
+) {
 
-  form.reset();
-
-
-  clientId.value =
-    "";
-
-
-  attendanceInput.value =
-    "None";
+  const value =
+    attendance || "None";
 
 
-  interestInput.value =
-    "None";
+  if (
+    value === "Attended"
+  ) {
+
+    return `
+      <span class="badge attended">
+        Attended
+      </span>
+    `;
+
+  }
 
 
-  formTitle.textContent =
-    "Add Client";
+  if (
+    value === "Not Attended"
+  ) {
+
+    return `
+      <span class="badge not-attended">
+        Not Attended
+      </span>
+    `;
+
+  }
 
 
-  saveBtn.textContent =
-    "Add Client";
+  return `
+    <span class="badge none">
+      None
+    </span>
+  `;
+
+}
 
 
-  cancelEditBtn.classList.add(
-    "hidden"
-  );
+// ======================================================
+// INTEREST BADGE
+// ======================================================
+
+function getInterestBadge(
+  interest
+) {
+
+  const value =
+    interest || "None";
+
+
+  if (
+    value === "Interested"
+  ) {
+
+    return `
+      <span class="badge interested">
+        Interested
+      </span>
+    `;
+
+  }
+
+
+  if (
+    value === "Not Interested"
+  ) {
+
+    return `
+      <span class="badge not-interested">
+        Not Interested
+      </span>
+    `;
+
+  }
+
+
+  return `
+    <span class="badge none">
+      None
+    </span>
+  `;
 
 }
 
@@ -1302,19 +1168,15 @@ function resetForm() {
 // FORMAT DATE
 // ======================================================
 
-function formatDate(
-  value
-) {
+function formatDate(dateValue) {
 
-  if (!value) {
-
+  if (!dateValue) {
     return "-";
-
   }
 
 
   const date =
-    new Date(value);
+    new Date(dateValue);
 
 
   if (
@@ -1328,25 +1190,12 @@ function formatDate(
   }
 
 
-  return date.toLocaleString(
+  return date.toLocaleDateString(
     "en-IN",
     {
-
-      day:
-        "2-digit",
-
-      month:
-        "short",
-
-      year:
-        "numeric",
-
-      hour:
-        "2-digit",
-
-      minute:
-        "2-digit"
-
+      day: "2-digit",
+      month: "short",
+      year: "numeric"
     }
   );
 
@@ -1357,34 +1206,37 @@ function formatDate(
 // ESCAPE HTML
 // ======================================================
 
-function escapeHtml(
-  value
-) {
+function escapeHtml(value) {
+
+  if (
+    value === null ||
+    value === undefined
+  ) {
+
+    return "";
+
+  }
+
 
   return String(value)
-
-    .replaceAll(
-      "&",
+    .replace(
+      /&/g,
       "&amp;"
     )
-
-    .replaceAll(
-      "<",
+    .replace(
+      /</g,
       "&lt;"
     )
-
-    .replaceAll(
-      ">",
+    .replace(
+      />/g,
       "&gt;"
     )
-
-    .replaceAll(
-      '"',
+    .replace(
+      /"/g,
       "&quot;"
     )
-
-    .replaceAll(
-      "'",
+    .replace(
+      /'/g,
       "&#039;"
     );
 
@@ -1396,33 +1248,27 @@ function escapeHtml(
 // ======================================================
 
 function showToast(
-  message
+  message,
+  type = "success"
 ) {
-
-  clearTimeout(
-    toastTimer
-  );
-
 
   toast.textContent =
     message;
 
 
-  toast.classList.add(
-    "show"
+  toast.className =
+    `toast ${type} show`;
+
+
+  setTimeout(
+    () => {
+
+      toast.classList.remove(
+        "show"
+      );
+
+    },
+    3000
   );
-
-
-  toastTimer =
-    setTimeout(
-      () => {
-
-        toast.classList.remove(
-          "show"
-        );
-
-      },
-      2500
-    );
 
 }
