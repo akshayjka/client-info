@@ -1,56 +1,145 @@
-const form = document.getElementById("clientForm");
+// ======================================================
+// ELEMENTS
+// ======================================================
 
-const clientId = document.getElementById("clientId");
+const form =
+  document.getElementById(
+    "clientForm"
+  );
 
-const nameInput = document.getElementById("name");
 
-const phoneInput = document.getElementById("phone");
+const clientId =
+  document.getElementById(
+    "clientId"
+  );
+
+
+const nameInput =
+  document.getElementById(
+    "name"
+  );
+
+
+const phoneInput =
+  document.getElementById(
+    "phone"
+  );
+
+
+const gymNameInput =
+  document.getElementById(
+    "gymName"
+  );
+
 
 const attendanceInput =
-  document.getElementById("attendance");
+  document.getElementById(
+    "attendance"
+  );
+
 
 const interestInput =
-  document.getElementById("interest");
+  document.getElementById(
+    "interest"
+  );
+
 
 const remarksInput =
-  document.getElementById("remarks");
+  document.getElementById(
+    "remarks"
+  );
+
 
 const tableBody =
-  document.getElementById("clientTableBody");
+  document.getElementById(
+    "clientTableBody"
+  );
+
 
 const emptyState =
-  document.getElementById("emptyState");
+  document.getElementById(
+    "emptyState"
+  );
+
 
 const recordCount =
-  document.getElementById("recordCount");
+  document.getElementById(
+    "recordCount"
+  );
+
 
 const searchInput =
-  document.getElementById("searchInput");
+  document.getElementById(
+    "searchInput"
+  );
+
+
+const gymFilter =
+  document.getElementById(
+    "gymFilter"
+  );
+
+
+const attendanceFilter =
+  document.getElementById(
+    "attendanceFilter"
+  );
+
+
+const interestFilter =
+  document.getElementById(
+    "interestFilter"
+  );
+
+
+const clearFiltersBtn =
+  document.getElementById(
+    "clearFiltersBtn"
+  );
+
 
 const saveBtn =
-  document.getElementById("saveBtn");
+  document.getElementById(
+    "saveBtn"
+  );
+
 
 const cancelEditBtn =
-  document.getElementById("cancelEditBtn");
+  document.getElementById(
+    "cancelEditBtn"
+  );
+
 
 const formTitle =
-  document.getElementById("formTitle");
+  document.getElementById(
+    "formTitle"
+  );
+
 
 const toast =
-  document.getElementById("toast");
+  document.getElementById(
+    "toast"
+  );
+
 
 const dbStatus =
-  document.getElementById("dbStatus");
+  document.getElementById(
+    "dbStatus"
+  );
 
+
+// ======================================================
+// STATE
+// ======================================================
 
 let clients = [];
 
 let toastTimer;
 
 
-// -----------------------------------------
+// ======================================================
 // INITIAL LOAD
-// -----------------------------------------
+// ======================================================
 
 document.addEventListener(
   "DOMContentLoaded",
@@ -64,19 +153,21 @@ document.addEventListener(
 );
 
 
-// -----------------------------------------
-// EVENT LISTENERS
-// -----------------------------------------
+// ======================================================
+// EVENTS
+// ======================================================
 
 form.addEventListener(
   "submit",
   saveClient
 );
 
+
 cancelEditBtn.addEventListener(
   "click",
   resetForm
 );
+
 
 searchInput.addEventListener(
   "input",
@@ -84,37 +175,77 @@ searchInput.addEventListener(
 );
 
 
-// -----------------------------------------
-// CHECK DATABASE
-// -----------------------------------------
+gymFilter.addEventListener(
+  "change",
+  renderTable
+);
+
+
+attendanceFilter.addEventListener(
+  "change",
+  renderTable
+);
+
+
+interestFilter.addEventListener(
+  "change",
+  renderTable
+);
+
+
+clearFiltersBtn.addEventListener(
+  "click",
+  clearFilters
+);
+
+
+// ======================================================
+// DATABASE STATUS
+// ======================================================
 
 async function checkDatabase() {
 
   try {
 
     const response =
-      await fetch("/api/health");
+      await fetch(
+        "/api/health"
+      );
+
 
     if (!response.ok) {
-      throw new Error("Database unavailable");
+
+      throw new Error(
+        "Database unavailable"
+      );
+
     }
+
 
     const result =
       await response.json();
 
-    if (result.database === "MongoDB connected") {
+
+    if (
+      result.database ===
+      "MongoDB connected"
+    ) {
 
       dbStatus.textContent =
         "MongoDB connected";
+
 
       dbStatus.classList.add(
         "connected"
       );
 
-    } else {
+    }
+
+    else {
 
       dbStatus.textContent =
         "MongoDB disconnected";
+
 
       dbStatus.classList.remove(
         "connected"
@@ -122,10 +253,13 @@ async function checkDatabase() {
 
     }
 
-  } catch (error) {
+  }
+
+  catch (error) {
 
     dbStatus.textContent =
       "Database error";
+
 
     dbStatus.classList.remove(
       "connected"
@@ -136,19 +270,23 @@ async function checkDatabase() {
 }
 
 
-// -----------------------------------------
+// ======================================================
 // LOAD CLIENTS
-// -----------------------------------------
+// ======================================================
 
 async function loadClients() {
 
   try {
 
     const response =
-      await fetch("/api/clients");
+      await fetch(
+        "/api/clients"
+      );
+
 
     const result =
       await response.json();
+
 
     if (!response.ok) {
 
@@ -159,15 +297,25 @@ async function loadClients() {
 
     }
 
-    clients = Array.isArray(result)
-      ? result
-      : [];
+
+    clients =
+      Array.isArray(result)
+        ? result
+        : [];
+
+
+    updateGymFilter();
 
     renderTable();
 
-  } catch (error) {
+  }
 
-    console.error(error);
+  catch (error) {
+
+    console.error(
+      error
+    );
+
 
     showToast(
       error.message ||
@@ -179,12 +327,13 @@ async function loadClients() {
 }
 
 
-// -----------------------------------------
+// ======================================================
 // SAVE CLIENT
-// ADD OR UPDATE
-// -----------------------------------------
+// ======================================================
 
-async function saveClient(event) {
+async function saveClient(
+  event
+) {
 
   event.preventDefault();
 
@@ -196,6 +345,9 @@ async function saveClient(event) {
 
     phone:
       phoneInput.value.trim(),
+
+    gymName:
+      gymNameInput.value.trim(),
 
     attendance:
       attendanceInput.value,
@@ -209,13 +361,16 @@ async function saveClient(event) {
   };
 
 
-  // Validation
+  // -----------------------------
+  // VALIDATION
+  // -----------------------------
 
   if (!payload.name) {
 
     showToast(
       "Please enter client name."
     );
+
 
     nameInput.focus();
 
@@ -230,6 +385,7 @@ async function saveClient(event) {
       "Please enter phone number."
     );
 
+
     phoneInput.focus();
 
     return;
@@ -237,21 +393,33 @@ async function saveClient(event) {
   }
 
 
+  // -----------------------------
+  // ADD / UPDATE
+  // -----------------------------
+
   const editingId =
     clientId.value.trim();
 
 
-  const url = editingId
-    ? `/api/clients/${encodeURIComponent(editingId)}`
-    : "/api/clients";
+  const url =
+    editingId
+
+      ? `/api/clients/${encodeURIComponent(
+          editingId
+        )}`
+
+      : "/api/clients";
 
 
-  const method = editingId
-    ? "PUT"
-    : "POST";
+  const method =
+    editingId
+      ? "PUT"
+      : "POST";
 
 
-  saveBtn.disabled = true;
+  saveBtn.disabled =
+    true;
+
 
   saveBtn.textContent =
     editingId
@@ -262,19 +430,24 @@ async function saveClient(event) {
   try {
 
     const response =
-      await fetch(url, {
+      await fetch(
+        url,
+        {
 
-        method,
+          method,
 
-        headers: {
-          "Content-Type":
-            "application/json"
-        },
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
 
-        body:
-          JSON.stringify(payload)
+          body:
+            JSON.stringify(
+              payload
+            )
 
-      });
+        }
+      );
 
 
     const result =
@@ -300,23 +473,33 @@ async function saveClient(event) {
 
     resetForm();
 
+
     await loadClients();
+
 
     await checkDatabase();
 
+  }
 
-  } catch (error) {
+  catch (error) {
 
-    console.error(error);
+    console.error(
+      error
+    );
+
 
     showToast(
       error.message ||
       "Unable to save client."
     );
 
-  } finally {
+  }
 
-    saveBtn.disabled = false;
+  finally {
+
+    saveBtn.disabled =
+      false;
+
 
     saveBtn.textContent =
       "Add Client";
@@ -326,9 +509,96 @@ async function saveClient(event) {
 }
 
 
-// -----------------------------------------
-// RENDER TABLE
-// -----------------------------------------
+// ======================================================
+// UPDATE GYM FILTER
+// ======================================================
+
+function updateGymFilter() {
+
+  const currentValue =
+    gymFilter.value;
+
+
+  const gyms =
+    [
+      ...new Set(
+
+        clients
+
+          .map(
+            client =>
+              String(
+                client.gymName ||
+                ""
+              ).trim()
+          )
+
+          .filter(
+            gym =>
+              gym.length > 0
+          )
+
+      )
+    ];
+
+
+  gyms.sort(
+    (a, b) =>
+      a.localeCompare(b)
+  );
+
+
+  gymFilter.innerHTML = `
+
+    <option value="">
+      All Gyms
+    </option>
+
+  `;
+
+
+  gyms.forEach(
+    gym => {
+
+      const option =
+        document.createElement(
+          "option"
+        );
+
+
+      option.value =
+        gym;
+
+
+      option.textContent =
+        gym;
+
+
+      gymFilter.appendChild(
+        option
+      );
+
+    }
+  );
+
+
+  if (
+    gyms.includes(
+      currentValue
+    )
+  ) {
+
+    gymFilter.value =
+      currentValue;
+
+  }
+
+}
+
+
+// ======================================================
+// RENDER + FILTER TABLE
+// ======================================================
 
 function renderTable() {
 
@@ -338,50 +608,175 @@ function renderTable() {
       .toLowerCase();
 
 
+  const selectedGym =
+    gymFilter.value;
+
+
+  const selectedAttendance =
+    attendanceFilter.value;
+
+
+  const selectedInterest =
+    interestFilter.value;
+
+
   const filtered =
-    clients.filter(client => {
-
-      const name =
-        String(client.name || "")
-          .toLowerCase();
-
-      const phone =
-        String(client.phone || "")
-          .toLowerCase();
-
-      const remarks =
-        String(client.remarks || "")
-          .toLowerCase();
-
-      return (
-        name.includes(search) ||
-        phone.includes(search) ||
-        remarks.includes(search)
-      );
-
-    });
+    clients.filter(
+      client => {
 
 
-  tableBody.innerHTML = "";
+        // -----------------------------
+        // SEARCH
+        // -----------------------------
+
+        const name =
+          String(
+            client.name ||
+            ""
+          ).toLowerCase();
+
+
+        const phone =
+          String(
+            client.phone ||
+            ""
+          ).toLowerCase();
+
+
+        const gymName =
+          String(
+            client.gymName ||
+            ""
+          ).toLowerCase();
+
+
+        const remarks =
+          String(
+            client.remarks ||
+            ""
+          ).toLowerCase();
+
+
+        const matchesSearch =
+          !search ||
+
+          name.includes(
+            search
+          ) ||
+
+          phone.includes(
+            search
+          ) ||
+
+          gymName.includes(
+            search
+          ) ||
+
+          remarks.includes(
+            search
+          );
+
+
+        // -----------------------------
+        // GYM
+        // -----------------------------
+
+        const matchesGym =
+          !selectedGym ||
+
+          String(
+            client.gymName ||
+            ""
+          ) ===
+            selectedGym;
+
+
+        // -----------------------------
+        // ATTENDANCE
+        // -----------------------------
+
+        const matchesAttendance =
+          !selectedAttendance ||
+
+          String(
+            client.attendance ||
+            "None"
+          ) ===
+            selectedAttendance;
+
+
+        // -----------------------------
+        // INTEREST
+        // -----------------------------
+
+        const matchesInterest =
+          !selectedInterest ||
+
+          String(
+            client.interest ||
+            "None"
+          ) ===
+            selectedInterest;
+
+
+        // -----------------------------
+        // ALL FILTERS MUST MATCH
+        // -----------------------------
+
+        return (
+
+          matchesSearch &&
+
+          matchesGym &&
+
+          matchesAttendance &&
+
+          matchesInterest
+
+        );
+
+      }
+    );
+
+
+  // ====================================================
+  // BUILD TABLE
+  // ====================================================
+
+  tableBody.innerHTML =
+    "";
 
 
   filtered.forEach(
     (client, index) => {
 
+
       const row =
-        document.createElement("tr");
+        document.createElement(
+          "tr"
+        );
+
+
+      const attendance =
+        client.attendance ||
+        "None";
+
+
+      const interest =
+        client.interest ||
+        "None";
 
 
       const attendanceClass =
-        client.attendance === "Attended"
-          ? "attended"
-          : "not-attended";
+        getStatusClass(
+          attendance
+        );
 
 
       const interestClass =
-        client.interest === "Interested"
-          ? "interested"
-          : "not-interested";
+        getStatusClass(
+          interest
+        );
 
 
       row.innerHTML = `
@@ -393,82 +788,118 @@ function renderTable() {
 
         <td>
           <strong>
-            ${escapeHtml(client.name)}
+            ${escapeHtml(
+              client.name
+            )}
           </strong>
         </td>
 
 
         <td>
-          ${escapeHtml(client.phone)}
-        </td>
-
-
-        <td>
-
-          <span
-            class="badge ${attendanceClass}">
-
-            ${escapeHtml(
-              client.attendance
-            )}
-
-          </span>
-
-        </td>
-
-
-        <td>
-
-          <span
-            class="badge ${interestClass}">
-
-            ${escapeHtml(
-              client.interest
-            )}
-
-          </span>
-
+          ${escapeHtml(
+            client.phone
+          )}
         </td>
 
 
         <td>
           ${escapeHtml(
-            client.remarks || "-"
+            client.gymName ||
+            "-"
           )}
         </td>
 
 
         <td>
+
+          <span
+            class="badge ${attendanceClass}"
+          >
+
+            ${escapeHtml(
+              attendance
+            )}
+
+          </span>
+
+        </td>
+
+
+        <td>
+
+          <span
+            class="badge ${interestClass}"
+          >
+
+            ${escapeHtml(
+              interest
+            )}
+
+          </span>
+
+        </td>
+
+
+        <td>
+
+          ${escapeHtml(
+            client.remarks ||
+            "-"
+          )}
+
+        </td>
+
+
+        <td>
+
           ${formatDate(
             client.createdAt
           )}
+
         </td>
 
 
         <td>
 
-          <div class="action-group">
+          <div
+            class="action-group"
+          >
+
 
             <button
+
               class="action edit"
+
               type="button"
+
               data-action="edit"
-              data-id="${client._id}">
+
+              data-id="${client._id}"
+
+            >
 
               Edit
 
             </button>
 
 
+
             <button
+
               class="action delete"
+
               type="button"
+
               data-action="delete"
-              data-id="${client._id}">
+
+              data-id="${client._id}"
+
+            >
 
               Delete
 
             </button>
+
 
           </div>
 
@@ -477,13 +908,20 @@ function renderTable() {
       `;
 
 
-      tableBody.appendChild(row);
+      tableBody.appendChild(
+        row
+      );
 
     }
   );
 
 
+  // ====================================================
+  // RECORD COUNT
+  // ====================================================
+
   recordCount.textContent =
+
     `${filtered.length} ${
       filtered.length === 1
         ? "record"
@@ -491,7 +929,12 @@ function renderTable() {
     }`;
 
 
+  // ====================================================
+  // EMPTY STATE
+  // ====================================================
+
   emptyState.style.display =
+
     filtered.length
       ? "none"
       : "block";
@@ -499,13 +942,67 @@ function renderTable() {
 }
 
 
-// -----------------------------------------
-// TABLE BUTTON EVENTS
-// -----------------------------------------
+// ======================================================
+// STATUS CLASS
+// ======================================================
+
+function getStatusClass(
+  value
+) {
+
+  if (
+    value ===
+    "Attended"
+  ) {
+
+    return "attended";
+
+  }
+
+
+  if (
+    value ===
+    "Not Attended"
+  ) {
+
+    return "not-attended";
+
+  }
+
+
+  if (
+    value ===
+    "Interested"
+  ) {
+
+    return "interested";
+
+  }
+
+
+  if (
+    value ===
+    "Not Interested"
+  ) {
+
+    return "not-interested";
+
+  }
+
+
+  return "none-status";
+
+}
+
+
+// ======================================================
+// TABLE ACTIONS
+// ======================================================
 
 tableBody.addEventListener(
   "click",
   event => {
+
 
     const button =
       event.target.closest(
@@ -514,7 +1011,9 @@ tableBody.addEventListener(
 
 
     if (!button) {
+
       return;
+
     }
 
 
@@ -526,14 +1025,20 @@ tableBody.addEventListener(
       button.dataset.action;
 
 
-    if (action === "edit") {
+    if (
+      action ===
+      "edit"
+    ) {
 
       editClient(id);
 
     }
 
 
-    if (action === "delete") {
+    if (
+      action ===
+      "delete"
+    ) {
 
       deleteClient(id);
 
@@ -543,16 +1048,21 @@ tableBody.addEventListener(
 );
 
 
-// -----------------------------------------
+// ======================================================
 // EDIT CLIENT
-// -----------------------------------------
+// ======================================================
 
-function editClient(id) {
+function editClient(
+  id
+) {
 
   const client =
     clients.find(
       item =>
-        String(item._id) === String(id)
+        String(
+          item._id
+        ) ===
+        String(id)
     );
 
 
@@ -572,25 +1082,33 @@ function editClient(id) {
 
 
   nameInput.value =
-    client.name || "";
+    client.name ||
+    "";
 
 
   phoneInput.value =
-    client.phone || "";
+    client.phone ||
+    "";
+
+
+  gymNameInput.value =
+    client.gymName ||
+    "";
 
 
   attendanceInput.value =
     client.attendance ||
-    "Not Attended";
+    "None";
 
 
   interestInput.value =
     client.interest ||
-    "Not Interested";
+    "None";
 
 
   remarksInput.value =
-    client.remarks || "";
+    client.remarks ||
+    "";
 
 
   formTitle.textContent =
@@ -610,23 +1128,29 @@ function editClient(id) {
 
     top: 0,
 
-    behavior: "smooth"
+    behavior:
+      "smooth"
 
   });
 
 }
 
 
-// -----------------------------------------
+// ======================================================
 // DELETE CLIENT
-// -----------------------------------------
+// ======================================================
 
-async function deleteClient(id) {
+async function deleteClient(
+  id
+) {
 
   const client =
     clients.find(
       item =>
-        String(item._id) === String(id)
+        String(
+          item._id
+        ) ===
+        String(id)
     );
 
 
@@ -648,7 +1172,9 @@ async function deleteClient(id) {
 
 
   if (!confirmed) {
+
     return;
+
   }
 
 
@@ -656,10 +1182,16 @@ async function deleteClient(id) {
 
     const response =
       await fetch(
-        `/api/clients/${encodeURIComponent(id)}`,
+
+        `/api/clients/${encodeURIComponent(
+          id
+        )}`,
+
         {
-          method: "DELETE"
+          method:
+            "DELETE"
         }
+
       );
 
 
@@ -684,12 +1216,17 @@ async function deleteClient(id) {
 
     await loadClients();
 
+
     await checkDatabase();
 
+  }
 
-  } catch (error) {
+  catch (error) {
 
-    console.error(error);
+    console.error(
+      error
+    );
+
 
     showToast(
       error.message ||
@@ -701,24 +1238,49 @@ async function deleteClient(id) {
 }
 
 
-// -----------------------------------------
+// ======================================================
+// CLEAR FILTERS
+// ======================================================
+
+function clearFilters() {
+
+  searchInput.value =
+    "";
+
+  gymFilter.value =
+    "";
+
+  attendanceFilter.value =
+    "";
+
+  interestFilter.value =
+    "";
+
+
+  renderTable();
+
+}
+
+
+// ======================================================
 // RESET FORM
-// -----------------------------------------
+// ======================================================
 
 function resetForm() {
 
   form.reset();
 
 
-  clientId.value = "";
+  clientId.value =
+    "";
 
 
   attendanceInput.value =
-    "Not Attended";
+    "None";
 
 
   interestInput.value =
-    "Not Interested";
+    "None";
 
 
   formTitle.textContent =
@@ -736,14 +1298,18 @@ function resetForm() {
 }
 
 
-// -----------------------------------------
-// DATE FORMAT
-// -----------------------------------------
+// ======================================================
+// FORMAT DATE
+// ======================================================
 
-function formatDate(value) {
+function formatDate(
+  value
+) {
 
   if (!value) {
+
     return "-";
+
   }
 
 
@@ -751,30 +1317,49 @@ function formatDate(value) {
     new Date(value);
 
 
-  if (Number.isNaN(date.getTime())) {
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+
     return "-";
+
   }
 
 
   return date.toLocaleString(
     "en-IN",
     {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit"
+
+      day:
+        "2-digit",
+
+      month:
+        "short",
+
+      year:
+        "numeric",
+
+      hour:
+        "2-digit",
+
+      minute:
+        "2-digit"
+
     }
   );
 
 }
 
 
-// -----------------------------------------
-// HTML ESCAPE
-// -----------------------------------------
+// ======================================================
+// ESCAPE HTML
+// ======================================================
 
-function escapeHtml(value) {
+function escapeHtml(
+  value
+) {
 
   return String(value)
 
@@ -806,13 +1391,17 @@ function escapeHtml(value) {
 }
 
 
-// -----------------------------------------
+// ======================================================
 // TOAST
-// -----------------------------------------
+// ======================================================
 
-function showToast(message) {
+function showToast(
+  message
+) {
 
-  clearTimeout(toastTimer);
+  clearTimeout(
+    toastTimer
+  );
 
 
   toast.textContent =

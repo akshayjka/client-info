@@ -1,40 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Client Tracker</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-  <link rel="stylesheet" href="styles.css">
+  <title>
+    Client Tracker
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="styles.css"
+  >
+
 </head>
+
 
 <body>
 
+
   <main class="container">
 
-    <!-- PAGE HEADER -->
+
+    <!-- ==================================================
+         HEADER
+    =================================================== -->
+
     <header class="page-header">
 
       <div>
-        <h1>Client Tracker</h1>
+
+        <h1>
+          Client Tracker
+        </h1>
 
         <p>
           Record client details and track attendance and interest.
         </p>
+
       </div>
+
 
       <div
         class="db-status"
-        id="dbStatus">
+        id="dbStatus"
+      >
         Connecting...
       </div>
 
     </header>
 
 
-    <!-- ADD / EDIT FORM -->
+
+    <!-- ==================================================
+         ADD / EDIT CLIENT
+    =================================================== -->
+
     <section class="card form-card">
+
 
       <div class="section-title">
 
@@ -42,21 +71,22 @@
           Add Client
         </h2>
 
+
         <button
           type="button"
           class="secondary hidden"
-          id="cancelEditBtn">
-
+          id="cancelEditBtn"
+        >
           Cancel Edit
-
         </button>
 
       </div>
 
 
+
       <form id="clientForm">
 
-        <!-- MongoDB _id -->
+
         <input
           type="hidden"
           id="clientId"
@@ -65,7 +95,9 @@
 
         <div class="form-grid">
 
-          <!-- NAME -->
+
+          <!-- CLIENT NAME -->
+
           <label>
 
             Client Name
@@ -81,7 +113,9 @@
           </label>
 
 
+
           <!-- PHONE -->
+
           <label>
 
             Phone Number
@@ -97,39 +131,68 @@
           </label>
 
 
+
+          <!-- GYM -->
+
+          <label>
+
+            Gym Name
+
+            <input
+              id="gymName"
+              type="text"
+              placeholder="Enter gym name"
+              autocomplete="organization"
+            >
+
+          </label>
+
+
+
           <!-- ATTENDANCE -->
+
           <label>
 
             Attendance
 
             <select id="attendance">
 
-              <option value="Not Attended">
-                Not Attended
+              <option value="None">
+                None
               </option>
 
               <option value="Attended">
                 Attended
               </option>
 
+              <option value="Not Attended">
+                Not Attended
+              </option>
+
             </select>
 
           </label>
 
 
+
           <!-- INTEREST -->
+
           <label>
 
             Interest
 
             <select id="interest">
 
-              <option value="Not Interested">
-                Not Interested
+              <option value="None">
+                None
               </option>
 
               <option value="Interested">
                 Interested
+              </option>
+
+              <option value="Not Interested">
+                Not Interested
               </option>
 
             </select>
@@ -137,7 +200,9 @@
           </label>
 
 
+
           <!-- REMARKS -->
+
           <label class="full-width">
 
             Remarks
@@ -150,27 +215,35 @@
 
           </label>
 
+
         </div>
+
 
 
         <button
           class="primary"
           type="submit"
-          id="saveBtn">
-
+          id="saveBtn"
+        >
           Add Client
-
         </button>
+
 
       </form>
 
     </section>
 
 
-    <!-- CLIENT TABLE -->
-    <section class="card">
+
+    <!-- ==================================================
+         FILTERS
+    =================================================== -->
+
+    <section class="card filter-card">
+
 
       <div class="table-header">
+
 
         <div>
 
@@ -185,74 +258,223 @@
         </div>
 
 
-        <input
-          class="search"
-          id="searchInput"
-          type="search"
-          placeholder="Search name, number or remarks..."
+        <button
+          type="button"
+          class="secondary"
+          id="clearFiltersBtn"
         >
+          Clear Filters
+        </button>
+
 
       </div>
 
 
+
+      <div class="filter-grid">
+
+
+        <!-- SEARCH -->
+
+        <label>
+
+          Search
+
+          <input
+            id="searchInput"
+            type="search"
+            placeholder="Name, phone, gym or remarks..."
+          >
+
+        </label>
+
+
+
+        <!-- GYM FILTER -->
+
+        <label>
+
+          Gym Name
+
+          <select id="gymFilter">
+
+            <option value="">
+              All Gyms
+            </option>
+
+          </select>
+
+        </label>
+
+
+
+        <!-- ATTENDANCE FILTER -->
+
+        <label>
+
+          Attendance
+
+          <select id="attendanceFilter">
+
+            <option value="">
+              All Attendance
+            </option>
+
+            <option value="None">
+              None
+            </option>
+
+            <option value="Attended">
+              Attended
+            </option>
+
+            <option value="Not Attended">
+              Not Attended
+            </option>
+
+          </select>
+
+        </label>
+
+
+
+        <!-- INTEREST FILTER -->
+
+        <label>
+
+          Interest
+
+          <select id="interestFilter">
+
+            <option value="">
+              All Interest
+            </option>
+
+            <option value="None">
+              None
+            </option>
+
+            <option value="Interested">
+              Interested
+            </option>
+
+            <option value="Not Interested">
+              Not Interested
+            </option>
+
+          </select>
+
+        </label>
+
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ==================================================
+         CLIENT TABLE
+    =================================================== -->
+
+    <section class="card">
+
+
       <div class="table-wrapper">
 
+
         <table>
+
 
           <thead>
 
             <tr>
 
-              <th>#</th>
+              <th>
+                #
+              </th>
 
-              <th>Client</th>
+              <th>
+                Client
+              </th>
 
-              <th>Phone</th>
+              <th>
+                Phone
+              </th>
 
-              <th>Attendance</th>
+              <th>
+                Gym
+              </th>
 
-              <th>Interest</th>
+              <th>
+                Attendance
+              </th>
 
-              <th>Remarks</th>
+              <th>
+                Interest
+              </th>
 
-              <th>Added</th>
+              <th>
+                Remarks
+              </th>
 
-              <th>Actions</th>
+              <th>
+                Added
+              </th>
+
+              <th>
+                Actions
+              </th>
 
             </tr>
 
           </thead>
 
 
-          <tbody id="clientTableBody">
+
+          <tbody
+            id="clientTableBody"
+          >
           </tbody>
+
 
         </table>
 
 
+
         <div
           class="empty"
-          id="emptyState">
-
+          id="emptyState"
+        >
           No client records found.
-
         </div>
+
 
       </div>
 
+
     </section>
+
 
   </main>
 
 
-  <!-- TOAST -->
+
+  <!-- ==================================================
+       TOAST
+  =================================================== -->
+
   <div
     class="toast"
-    id="toast">
+    id="toast"
+  >
   </div>
+
 
 
   <script src="app.js"></script>
 
+
 </body>
+
 </html>

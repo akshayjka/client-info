@@ -1,7 +1,7 @@
 {
   "name": "client-details-tracker",
-  "version": "2.0.0",
-  "description": "Simple client tracker using HTML, CSS, JavaScript, Express and MongoDB.",
+  "version": "3.0.0",
+  "description": "Client tracker using Express, Mongoose and MongoDB.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -11,7 +11,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "dotenv": "^18.0.4",
+    "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "mongoose": "^8.18.0"
   }
